@@ -4,7 +4,8 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 from mpl_toolkits.mplot3d import Axes3D
 from pathlib import Path
-import argparse  # <-- NEW import
+import argparse
+from numba import njit
 
 def update(frame_idx, E, r, X, Y, Z, wavelength, ax, surf):
     ax.clear()
@@ -55,14 +56,39 @@ def spherical_unit_vectors(THETA, PHI):
 
     return r_hat, theta_hat, phi_hat
 
+@njit
 def Hertz_Efield(I, dl, k, theta_grid, phi_grid, r_grid):
-    prefac = I * dl / (4 * np.pi * constants.epsilon_0)
-    r_hat, theta_hat, phi_hat = spherical_unit_vectors(theta_grid, phi_grid)
-    theta_grid, phi_grid, r_grid = [g[..., np.newaxis] for g in (theta_grid, phi_grid, r_grid)]
-    term1 = (k**2) / r_grid * np.sin(theta_grid) * np.exp(-1j*k*r_grid) * theta_hat
-    term2 = (1 / r_grid**3 - 1j * k / r_grid**2) * (2*np.cos(theta_grid)*r_hat + np.sin(theta_grid)*theta_hat) * np.exp(-1j*k*r_grid)
+    prefac = I * dl / (4 * np.pi * 8.854187817e-12)  # constants.epsilon_0 hardcoded
+    sin_theta = np.sin(theta_grid)
+    cos_theta = np.cos(theta_grid)
+    sin_phi = np.sin(phi_grid)
+    cos_phi = np.cos(phi_grid)
+
+    r_hat = np.zeros(theta_grid.shape + (3,))
+    theta_hat = np.zeros(theta_grid.shape + (3,))
+    phi_hat = np.zeros(theta_grid.shape + (3,))
+
+    r_hat[..., 0] = sin_theta * cos_phi
+    r_hat[..., 1] = sin_theta * sin_phi
+    r_hat[..., 2] = cos_theta
+
+    theta_hat[..., 0] = cos_theta * cos_phi
+    theta_hat[..., 1] = cos_theta * sin_phi
+    theta_hat[..., 2] = -sin_theta
+
+    phi_hat[..., 0] = -sin_phi
+    phi_hat[..., 1] = cos_phi
+    phi_hat[..., 2] = 0.0
+
+    term1 = (k ** 2) / r_grid * np.sin(theta_grid) * np.exp(-1j * k * r_grid)[:, :, np.newaxis] * theta_hat
+    term2 = (1 / r_grid ** 3 - 1j * k / r_grid ** 2) * (
+        2 * np.cos(theta_grid) * r_hat + np.sin(theta_grid) * theta_hat
+    ) * np.exp(-1j * k * r_grid)[:, :, np.newaxis]
+
     E = prefac * (term1 + term2)
+
     return E
+
 
 def run_simulation(save_path=None, anim_interval=100, n_points=30):
     try:
