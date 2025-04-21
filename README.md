@@ -28,10 +28,10 @@ python Hertz_anim.py --save_path outputs/field_animation.gif
 ```
 
 Command Line Options
-Option	Description	Default
---save_path	File path to save the output GIF. If not set, displays the animation live.	None (show only)
---interval	Animation frame interval in milliseconds (smaller = faster).	100
---points	Number of radial points to simulate.	30
+Option | Description | Default
+--save_path | File path to save the animation as .gif. If not set, displays the animation live. | None (show only)
+--interval | Animation frame interval in milliseconds (smaller = faster). | 100
+--points | Number of radial distance points in the field animation. | 30
 
 Example with custom settings:
 ```bash
