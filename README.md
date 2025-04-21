@@ -12,15 +12,20 @@ First, make sure you have the required Python packages installed:
 
 ```bash
 pip install numpy scipy matplotlib
+```
 
 Then, you can run the script:
 Preview only (no file saved)
 
+```bash
 python Hertz_anim.py
+```
 
 Save the animation to a GIF
 
+```bash
 python Hertz_anim.py --save_path outputs/field_animation.gif
+```
 
 Command Line Options
 Option	Description	Default
