@@ -34,5 +34,6 @@ Option	Description	Default
 --points	Number of radial points to simulate.	30
 
 Example with custom settings:
-
+```bash
 python myfile.py --save_path outputs/my_animation.gif --interval 50 --points 60
+```
