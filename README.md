@@ -35,5 +35,5 @@ Option	Description	Default
 
 Example with custom settings:
 ```bash
-python myfile.py --save_path outputs/my_animation.gif --interval 50 --points 60
+python Hertz_anim.py --save_path outputs/my_animation.gif --interval 50 --points 60
 ```
